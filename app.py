@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
+from sklearn import preprocessing
 
 # Load the model
 model = joblib.load('model.joblib')
