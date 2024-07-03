@@ -1,45 +1,35 @@
+# prompt: %%writefile app.py streamlit stunting
+
+%%writefile app.py
 import streamlit as st
 import pandas as pd
 import joblib
-from sklearn import preprocessing
 
 # Load the model
 model = joblib.load('model.joblib')
 
 # Define the application
 def main():
-    # Create the title and sidebar
+    # Create a title and a subheader
     st.title('Stunting Prediction App')
-    st.sidebar.header('User Input Features')
+    st.subheader('Please input the following data:')
 
-    # Get user input
-    gender = st.sidebar.selectbox('Gender', ['Female', 'Male'])
-    age_month = st.sidebar.number_input('Age (Month)')
-    body_weight = st.sidebar.number_input('Body Weight (kg)')
-    body_height = st.sidebar.number_input('Body Height (cm)')
+    # Get the input data from the user
+    gender = st.selectbox('Gender', ['Female', 'Male'])
+    age_month = st.number_input('Age (Month)', min_value=0, max_value=72)
+    body_weight = st.number_input('Body Weight (kg)', min_value=0.0, max_value=20.0)
+    body_height = st.number_input('Body Height (cm)', min_value=0.0, max_value=120.0)
 
-    # Encode categorical data
-    gender_encoded = 0 if gender == 'Female' else 1
+    # Preprocess the input data
+    data = [[gender, age_month, body_weight, body_height]]
+    df = pd.DataFrame(data, columns=['Gender', 'Age (Month)', 'Body weight', 'Body height'])
 
-    # Create a DataFrame with user input
-    user_input = pd.DataFrame({
-        'Gender': [gender_encoded],
-        'Age (Month)': [age_month],
-        'Body weight': [body_weight],
-        'Body height': [body_height]
-    })
-
-    # Normalize numerical data
-    minmax = preprocessing.MinMaxScaler(feature_range=(0, 1))
-    user_input['Body height'] = minmax.fit_transform(user_input['Body height'].values.reshape(-1, 1))
-
-    # Predict the status
-    prediction = model.predict(user_input)[0]
+    # Make predictions
+    prediction = model.predict(df)[0]
 
     # Display the prediction
-    if st.button('Predict'):
-        st.subheader('Prediction:')
-        st.write(prediction)
+    st.subheader('Prediction:')
+    st.write(prediction)
 
 # Run the application
 if __name__ == '__main__':
